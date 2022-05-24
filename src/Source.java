@@ -2,6 +2,8 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -22,9 +24,13 @@ public class Source {
 	private JFrame frame;
 	private JTextArea textArea;
 	private String inputStr = "";
-	JTextArea textAreaToCount;
+	private JTextArea textAreaToCount;
 	private JLabel lblStringToCount;
 	private JLabel lblNewLabel_1;
+	private String loadPath = "input.txt";
+	private String savePath = "output.html";
+	private JButton buttonSave;
+	private int foundWordsCount;
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -66,7 +72,15 @@ public class Source {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					Scanner sc = new Scanner(new File("input.txt"));
+					JFileChooser fileChooser = new JFileChooser(loadPath);
+					int returnValue = fileChooser.showOpenDialog(null);
+					
+					if(returnValue == JFileChooser.APPROVE_OPTION) {
+						File selectedFile = fileChooser.getSelectedFile();
+						loadPath = selectedFile.getAbsolutePath();
+					}
+					
+					Scanner sc = new Scanner(new File(loadPath));
 					
 					inputStr = "";
 					while(sc.hasNextLine())
@@ -89,35 +103,11 @@ public class Source {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				//String handledStr = handleStr(inputStr);
-				int count = handleStr(inputStr, textAreaToCount.getText());
-				String handledStr = "" + count;
-				lblNewLabel_1.setText(handledStr);
-				
-				try {
-					String outputFileName = "outputSite.html";
-					BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
-					String outputStr = "<html>\r\n"
-							+ "<title>Hello</title>\r\n"
-							+ "<body>\r\n"
-							+ "\r\n"
-							+ "<b>Лабораторная работа №9</b><br>\r\n"
-							+ "<i>Вариант B</i><br>\n"
-							+ "Выполнил студент группы ИВТАСбд-11 <b>Долгов А.П</b><br>\n";
-					
-					outputStr = outputStr + "Файл: <b>" + outputFileName + "</b><br>\n";		
-					outputStr = outputStr + "Начало слова: <b>" + textAreaToCount.getText() + "<b><br>\n";
-					outputStr = outputStr + "Количество найденный слов: <b>" + count + "</b><br>\n";
-					outputStr = outputStr + "</body>\r\n </html>";
-					
-					writer.write(outputStr);
-					writer.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-				
+				foundWordsCount = handleStr(inputStr, textAreaToCount.getText());
+				String handledStr = "" + foundWordsCount;
+				lblNewLabel_1.setText(handledStr);		
 			}});
-		btnNewButton_1.setBounds(502, 57, 89, 23);
+		btnNewButton_1.setBounds(502, 89, 89, 23);
 		frame.getContentPane().add(btnNewButton_1);
 		
 		textArea = new JTextArea();
@@ -141,5 +131,43 @@ public class Source {
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		lblNewLabel_1.setBounds(324, 23, 79, 31);
 		frame.getContentPane().add(lblNewLabel_1);
+		
+		buttonSave = new JButton("Save");
+		buttonSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					JFileChooser fileChooser = new JFileChooser(loadPath);
+					int returnValue = fileChooser.showSaveDialog(null);
+					
+					if(returnValue == JFileChooser.APPROVE_OPTION) {
+						File selectedFile = fileChooser.getSelectedFile();
+						savePath = selectedFile.getAbsolutePath();
+					}			
+					
+					String outputFileName = savePath;
+					BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
+					String outputStr = "<html>\r\n"
+							+ "<title>Hello</title>\r\n"
+							+ "<body>\r\n"
+							+ "\r\n"
+							+ "<b><center>Лабораторная работа №9</center></b><br>\r\n"
+							+ "<i><center>Вариант B</center></i><br>\n"
+							+ "Выполнил студент группы <i>ИВТАСбд-11 <b>Долгов А.П</b></i><br>\n";
+					
+					outputStr = outputStr + "Файл: <b>" + outputFileName + "</b><br>\n";		
+					outputStr = outputStr + "Начало слова: <b>" + textAreaToCount.getText() + "<b><br>\n";
+					outputStr = outputStr + "Количество найденный слов: <b>" + foundWordsCount + "</b><br>\n";
+					outputStr = outputStr + "</body>\r\n </html>";
+					
+					writer.write(outputStr);
+					writer.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}		
+			}
+		});
+		buttonSave.setBounds(502, 56, 89, 23);
+		frame.getContentPane().add(buttonSave);
 	}
 }
